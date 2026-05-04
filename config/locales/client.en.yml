@@ -2,6 +2,7 @@ en:
   js:
     westan_vip_painel:
       title: "Painel VIP"
+      admin_title: "Westan VIP Painel"
   admin_js:
     site_settings:
       categories:

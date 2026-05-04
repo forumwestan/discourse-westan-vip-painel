@@ -159,6 +159,17 @@ function scheduleScan() {
 
 export default apiInitializer("1.8.0", (api) => {
   const currentUser = api.getCurrentUser();
+  if (currentUser?.staff) {
+    api.addAdminSidebarSectionLink?.("plugins", {
+      name: "westan-vip-painel",
+      route: "westan-vip-painel-admin",
+      label: "westan_vip_painel.admin_title",
+      title: "Westan VIP Painel",
+      text: "Westan VIP Painel",
+      icon: "crown",
+    });
+  }
+
   if (currentUser?.westan_vip_painel_can_use) {
     api.addCommunitySectionLink?.({
       name: "westan-vip-painel",

@@ -16,6 +16,8 @@ register_svg_icon "crown"
 register_svg_icon "bolt"
 register_svg_icon "check"
 register_svg_icon "xmark"
+register_svg_icon "plus"
+register_svg_icon "trash-can"
 
 module ::WestanVipPainel
   PLUGIN_NAME = "discourse-westan-vip-painel"
@@ -39,17 +41,22 @@ after_initialize do
     get   "/"            => "painel#show"
     patch "/"            => "painel#update"
     get   "/post-users"  => "painel#post_users"
+    get   "/admin/catalog" => "painel#admin_catalog"
+    patch "/admin/catalog" => "painel#admin_update_catalog"
   end
 
   Discourse::Application.routes.prepend do
     get   "/westan/vip-painel"            => "westan_vip_painel/painel#show"
     patch "/westan/vip-painel"            => "westan_vip_painel/painel#update"
     get   "/westan/vip-painel/post-users" => "westan_vip_painel/painel#post_users"
+    get   "/westan/vip-painel/admin/catalog" => "westan_vip_painel/painel#admin_catalog"
+    patch "/westan/vip-painel/admin/catalog" => "westan_vip_painel/painel#admin_update_catalog"
   end
 
   Discourse::Application.routes.append do
     get "/vip-painel" => "list#latest"
     get "/vip-painel/*path" => "list#latest"
+    get "/admin/plugins/westan-vip-painel" => "list#latest"
   end
 
   WestanVipPainel::CUSTOM_FIELDS.values.each do |field|

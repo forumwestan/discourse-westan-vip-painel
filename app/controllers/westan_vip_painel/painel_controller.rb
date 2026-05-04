@@ -6,6 +6,7 @@ module WestanVipPainel
 
     before_action :ensure_logged_in, only: [:show, :update]
     before_action :ensure_vip_member, only: [:update]
+    before_action :ensure_staff, only: [:admin_catalog, :admin_update_catalog]
 
     def show
       can_use = vip_member?(current_user)
@@ -64,7 +65,43 @@ module WestanVipPainel
       }
     end
 
+    def admin_catalog
+      render json: {
+        themes: normalize_theme_catalog,
+        nickname_styles: normalize_nickname_catalog
+      }
+    end
+
+    def admin_update_catalog
+      themes = params[:themes]
+      themes = themes.values if themes.is_a?(ActionController::Parameters) || themes.is_a?(Hash)
+      nickname_styles = params[:nickname_styles]
+      nickname_styles = nickname_styles.values if nickname_styles.is_a?(ActionController::Parameters) || nickname_styles.is_a?(Hash)
+
+      raise Discourse::InvalidParameters.new(:themes) unless themes.is_a?(Array)
+      raise Discourse::InvalidParameters.new(:nickname_styles) unless nickname_styles.is_a?(Array)
+
+      normalized_themes = normalize_theme_payload(themes)
+      normalized_styles = normalize_nickname_payload(nickname_styles)
+
+      SiteSetting.westan_vip_painel_themes_json = JSON.generate(normalized_themes)
+      SiteSetting.westan_vip_painel_nickname_styles_json = JSON.generate(normalized_styles)
+
+      @enabled_themes = nil
+      @enabled_nickname_styles = nil
+
+      render json: {
+        success: true,
+        themes: normalize_theme_catalog,
+        nickname_styles: normalize_nickname_catalog
+      }
+    end
+
     private
+
+    def ensure_staff
+      raise Discourse::InvalidAccess unless current_user&.staff?
+    end
 
     def ensure_vip_member
       raise Discourse::InvalidAccess unless vip_member?(current_user)
@@ -162,6 +199,40 @@ module WestanVipPainel
           "id" => style["id"].presence || "style-#{index + 1}",
           "name" => style["name"].presence || "Estilo #{index + 1}",
           "enabled" => style.key?("enabled") ? style["enabled"] : true,
+          "from" => color_or(style["from"], "#9333EA"),
+          "to" => color_or(style["to"], "#EC4899")
+        }
+      end
+    end
+
+    def normalize_theme_payload(themes)
+      themes.map.with_index do |raw, index|
+        theme = raw.respond_to?(:to_unsafe_h) ? raw.to_unsafe_h : raw.to_h
+        {
+          "id" => theme["id"].presence || "theme-#{index + 1}",
+          "name" => theme["name"].presence || "Tema #{index + 1}",
+          "enabled" => truthy_param?(theme["enabled"]),
+          "badgeText" => theme["badgeText"].presence || "VIP",
+          "logoUrl" => theme["logoUrl"].to_s,
+          "badgeBackgroundUrl" => theme["badgeBackgroundUrl"].to_s,
+          "nicknameFrom" => color_or(theme["nicknameFrom"], "#9333EA"),
+          "nicknameTo" => color_or(theme["nicknameTo"], "#EC4899"),
+          "borderFrom" => color_or(theme["borderFrom"], "#C084FC"),
+          "borderTo" => color_or(theme["borderTo"], "#EC4899"),
+          "surfaceFrom" => color_or(theme["surfaceFrom"], "#F3E8FF"),
+          "surfaceTo" => color_or(theme["surfaceTo"], "#FDF2F8"),
+          "cardFilterColor" => theme["cardFilterColor"].presence || "#fff1ffcc"
+        }
+      end
+    end
+
+    def normalize_nickname_payload(styles)
+      styles.map.with_index do |raw, index|
+        style = raw.respond_to?(:to_unsafe_h) ? raw.to_unsafe_h : raw.to_h
+        {
+          "id" => style["id"].presence || "style-#{index + 1}",
+          "name" => style["name"].presence || "Estilo #{index + 1}",
+          "enabled" => truthy_param?(style["enabled"]),
           "from" => color_or(style["from"], "#9333EA"),
           "to" => color_or(style["to"], "#EC4899")
         }
