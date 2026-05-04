@@ -1,0 +1,6 @@
+en:
+  site_settings:
+    westan_vip_painel_enabled: "Enable the Westan VIP panel."
+    westan_vip_painel_group: "Group allowed to use the VIP panel."
+    westan_vip_painel_themes_json: "JSON catalog of VIP badge themes."
+    westan_vip_painel_nickname_styles_json: "JSON catalog of VIP nickname styles."

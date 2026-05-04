@@ -1,0 +1,516 @@
+.westan-vip-panel {
+  min-height: calc(100dvh - var(--header-offset, 0px));
+  background: #fff;
+  color: #0b0b0f;
+  font-family: "Nunito Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+.westan-vip-panel__inner {
+  width: min(100%, 1090px);
+  margin: 0 auto;
+  padding: 28px 16px 56px;
+}
+
+.westan-vip-panel__header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 40px;
+
+  > div {
+    display: inline-flex;
+    width: 64px;
+    height: 64px;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #eab308;
+    border-radius: 24px;
+    background: #facc15;
+    color: #fff;
+  }
+
+  .d-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  h1 {
+    margin: 0;
+    color: #050505;
+    font-size: 1.9rem;
+    font-weight: 950;
+    line-height: 1;
+  }
+
+  p {
+    margin: 8px 0 0;
+    color: #98a2b3;
+    font-size: 0.86rem;
+    font-weight: 950;
+  }
+}
+
+.westan-vip-panel__section {
+  margin-top: 34px;
+}
+
+.westan-vip-panel__section-title,
+.westan-vip-title-card__title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+
+  .d-icon {
+    width: 18px;
+    height: 18px;
+    color: #a855f7;
+  }
+
+  h2 {
+    margin: 0;
+    color: #050505;
+    font-size: 0.95rem;
+    font-weight: 950;
+  }
+}
+
+.westan-vip-theme-grid,
+.westan-vip-nickname-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.westan-vip-theme-card,
+.westan-vip-nickname-card,
+.westan-vip-title-card {
+  border: 2px solid #eef0f3;
+  border-radius: 28px;
+  background: #fff;
+  text-align: left;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+
+.westan-vip-theme-card,
+.westan-vip-nickname-card {
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+
+  &.is-selected {
+    border-color: #d946ef;
+    background: #fdf4ff;
+    box-shadow: 0 16px 36px rgba(217, 70, 239, 0.14);
+  }
+}
+
+.westan-vip-theme-card {
+  position: relative;
+  min-height: 164px;
+  overflow: hidden;
+  padding: 22px;
+
+  &.is-selected {
+    background: linear-gradient(135deg, var(--vip-surface-from), #fff 48%, var(--vip-surface-to));
+  }
+}
+
+.westan-vip-theme-card__copy {
+  position: relative;
+  z-index: 1;
+  max-width: calc(100% - 120px);
+
+  strong {
+    display: block;
+    font-size: 1.42rem;
+    font-weight: 950;
+    line-height: 1;
+  }
+
+  p {
+    max-width: 360px;
+    margin: 10px 0 0;
+    color: #344054;
+    font-size: 0.88rem;
+    font-weight: 800;
+    line-height: 1.45;
+  }
+}
+
+.westan-vip-theme-card__toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 22px;
+
+  label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 32px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.78);
+    color: #344054;
+    font-size: 0.72rem;
+    font-weight: 950;
+  }
+}
+
+.westan-vip-badge-preview {
+  position: absolute;
+  z-index: 1;
+  right: 20px;
+  top: 46px;
+  display: inline-flex;
+  width: 116px;
+  height: 58px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 2px solid color-mix(in srgb, var(--vip-border-from, #d946ef) 70%, #fff);
+  border-radius: 18px;
+  background: #111827;
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(17, 24, 39, 0.22);
+
+  > img:not(.westan-vip-badge-preview__logo),
+  > video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  span {
+    position: relative;
+    z-index: 1;
+    color: #fff;
+    font-size: 1.25rem;
+    font-weight: 950;
+    letter-spacing: 0.04em;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+  }
+}
+
+.westan-vip-badge-preview__logo {
+  position: relative;
+  z-index: 1;
+  max-width: 78%;
+  max-height: 78%;
+  object-fit: contain;
+}
+
+.westan-vip-selected {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: #050505;
+  color: #fff;
+  font-size: 0.82rem;
+  font-style: normal;
+  font-weight: 950;
+}
+
+.westan-vip-nickname-card {
+  min-height: 136px;
+  padding: 22px;
+
+  p {
+    margin: 0;
+    color: #98a2b3;
+    font-size: 0.76rem;
+    font-weight: 950;
+    letter-spacing: 0.36em;
+  }
+
+  strong {
+    display: block;
+    margin-top: 14px;
+    font-size: 1.78rem;
+    font-weight: 950;
+    line-height: 1;
+  }
+
+  span {
+    display: block;
+    margin-top: 10px;
+    color: #475467;
+    font-size: 0.86rem;
+    font-weight: 800;
+  }
+
+  em {
+    display: inline-flex;
+    width: 42px;
+    height: 42px;
+    align-items: center;
+    justify-content: center;
+    float: right;
+    margin-top: -48px;
+    border-radius: 999px;
+    background: #050505;
+    color: #fff;
+    font-style: normal;
+  }
+}
+
+.westan-vip-title-card {
+  margin-top: 34px;
+  padding: 24px;
+
+  > p {
+    margin: -4px 0 22px;
+    color: #667085;
+    font-size: 0.9rem;
+    font-weight: 800;
+    line-height: 1.55;
+  }
+}
+
+.westan-vip-title-card__title {
+  margin-bottom: 16px;
+
+  .d-icon {
+    color: #eab308;
+  }
+}
+
+.westan-vip-title-card__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 16px;
+  align-items: center;
+
+  label {
+    display: block;
+    margin-bottom: 10px;
+    color: #98a2b3;
+    font-size: 0.86rem;
+    font-weight: 950;
+  }
+
+  input {
+    width: 100%;
+    min-height: 56px;
+    box-sizing: border-box;
+    padding: 0 20px;
+    border: 2px solid #e5e7eb;
+    border-radius: 22px;
+    background: #fff;
+    color: #111827;
+    font: inherit;
+    font-weight: 800;
+    outline: none;
+
+    &:focus {
+      border-color: #a855f7;
+    }
+  }
+
+  small {
+    display: block;
+    margin-top: 10px;
+    color: #98a2b3;
+    font-size: 0.86rem;
+    font-weight: 800;
+
+    strong {
+      color: #475467;
+    }
+  }
+
+  aside {
+    min-height: 96px;
+    padding: 20px;
+    border: 1px solid #f0dbff;
+    border-radius: 24px;
+    background: #fbf7ff;
+
+    span,
+    strong,
+    em {
+      display: block;
+    }
+
+    span {
+      color: #98a2b3;
+      font-size: 0.6rem;
+      font-weight: 950;
+      letter-spacing: 0.42em;
+    }
+
+    strong {
+      margin-top: 14px;
+      color: #050505;
+      font-size: 1.25rem;
+      font-weight: 950;
+    }
+
+    em {
+      margin-top: 4px;
+      color: #667085;
+      font-style: normal;
+      font-weight: 950;
+    }
+  }
+}
+
+.westan-vip-save {
+  width: 100%;
+  min-height: 68px;
+  margin-top: 34px;
+  border: 2px solid #6d28d9;
+  border-radius: 24px;
+  background: #a112f4;
+  color: #fff;
+  font-size: 0.98rem;
+  font-weight: 950;
+
+  &:hover {
+    background: #8f0ee2;
+  }
+
+  &.is-saved {
+    border-color: #15803d;
+    background: #22c55e;
+  }
+}
+
+.westan-vip-panel--locked {
+  display: grid;
+  min-height: 58dvh;
+  place-items: center;
+  text-align: center;
+
+  > div {
+    max-width: 360px;
+  }
+
+  .d-icon {
+    width: 56px;
+    height: 56px;
+    color: #d1d5db;
+  }
+}
+
+.westan-vip-nickname {
+  font-weight: 950;
+}
+
+.westan-vip-user-title {
+  margin-top: 2px;
+  color: #667085;
+  font-size: 0.76rem;
+  font-weight: 850;
+  line-height: 1.2;
+}
+
+.westan-vip-post-badge {
+  position: relative;
+  display: inline-flex;
+  width: 62px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-left: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 9px;
+  background: #111827;
+  color: #fff;
+  vertical-align: middle;
+  box-shadow: 0 5px 12px rgba(15, 23, 42, 0.18);
+
+  .westan-vip-post-badge__bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .westan-vip-post-badge__logo,
+  span {
+    position: relative;
+    z-index: 1;
+  }
+
+  .westan-vip-post-badge__logo {
+    max-width: 82%;
+    max-height: 82%;
+    object-fit: contain;
+  }
+
+  span {
+    font-size: 0.64rem;
+    font-weight: 950;
+    letter-spacing: 0.04em;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  }
+}
+
+html.dark .westan-vip-panel,
+body.dark .westan-vip-panel,
+body[class*="dark"] .westan-vip-panel {
+  background: #020617;
+  color: #f8fafc;
+
+  .westan-vip-panel__header h1,
+  .westan-vip-panel__section-title h2,
+  .westan-vip-title-card__title h2,
+  .westan-vip-title-card__body aside strong {
+    color: #f8fafc;
+  }
+
+  .westan-vip-theme-card,
+  .westan-vip-nickname-card,
+  .westan-vip-title-card {
+    border-color: #1e293b;
+    background: #0f172a;
+  }
+
+  .westan-vip-theme-card.is-selected,
+  .westan-vip-nickname-card.is-selected {
+    border-color: #d946ef;
+    background: rgba(88, 28, 135, 0.2);
+  }
+
+  .westan-vip-title-card__body input {
+    border-color: #334155;
+    background: #020617;
+    color: #f8fafc;
+  }
+
+  .westan-vip-title-card__body aside {
+    border-color: rgba(168, 85, 247, 0.26);
+    background: rgba(88, 28, 135, 0.12);
+  }
+}
+
+@media (max-width: 860px) {
+  .westan-vip-theme-grid,
+  .westan-vip-nickname-grid,
+  .westan-vip-title-card__body {
+    grid-template-columns: 1fr;
+  }
+
+  .westan-vip-theme-card__copy {
+    max-width: none;
+    padding-right: 92px;
+  }
+
+  .westan-vip-badge-preview {
+    width: 78px;
+    height: 48px;
+  }
+}

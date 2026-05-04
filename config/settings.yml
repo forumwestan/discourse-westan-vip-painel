@@ -1,0 +1,22 @@
+plugins:
+  westan_vip_painel_enabled:
+    default: true
+    client: true
+
+  westan_vip_painel_group:
+    default: "vip"
+    type: group
+    client: true
+    description: "Group allowed to use the VIP panel."
+
+  westan_vip_painel_themes_json:
+    default: '[{"id":"gaga","name":"Gaga","enabled":true,"badgeText":"GAGA","logoUrl":"","badgeBackgroundUrl":"https://seriesemcena.com.br/fundometal.mp4","nicknameFrom":"#F97316","nicknameTo":"#FDBA74","borderFrom":"#FB923C","borderTo":"#FED7AA","surfaceFrom":"#FFEDD5","surfaceTo":"#FFF7ED","cardFilterColor":"#ffe3c2cc"},{"id":"cowboy-carter","name":"Cowboy Carter","enabled":true,"badgeText":"BEY","logoUrl":"","badgeBackgroundUrl":"","nicknameFrom":"#B336D9","nicknameTo":"#D946EF","borderFrom":"#C026D3","borderTo":"#F0ABFC","surfaceFrom":"#FAE8FF","surfaceTo":"#FFF7ED","cardFilterColor":"#fae8ffcc"},{"id":"sabrina","name":"Sabrina Carpenter","enabled":true,"badgeText":"SC","logoUrl":"","badgeBackgroundUrl":"","nicknameFrom":"#B336D9","nicknameTo":"#D946EF","borderFrom":"#D946EF","borderTo":"#FDBA74","surfaceFrom":"#FAE8FF","surfaceTo":"#FFF7ED","cardFilterColor":"#fae8ffcc"}]'
+    type: textarea
+    client: true
+    description: "JSON array of VIP themes. Admin controls badge text/images and colors here."
+
+  westan_vip_painel_nickname_styles_json:
+    default: '[{"id":"orchid","name":"Orchid","enabled":true,"from":"#EC4899","to":"#A855F7"},{"id":"sunset","name":"Sunset","enabled":true,"from":"#F97316","to":"#FDBA74"},{"id":"gold","name":"Gold","enabled":true,"from":"#D97706","to":"#FDE68A"},{"id":"fire","name":"Fire","enabled":true,"from":"#EA580C","to":"#FB923C"},{"id":"lime","name":"Lime","enabled":true,"from":"#84CC16","to":"#BEF264"},{"id":"violet","name":"Violet","enabled":true,"from":"#A855F7","to":"#D946EF"},{"id":"sky","name":"Sky","enabled":true,"from":"#60A5FA","to":"#38BDF8"},{"id":"purple","name":"Purple","enabled":true,"from":"#9333EA","to":"#D946EF"}]'
+    type: textarea
+    client: true
+    description: "JSON array of nickname styles available in the VIP panel."
