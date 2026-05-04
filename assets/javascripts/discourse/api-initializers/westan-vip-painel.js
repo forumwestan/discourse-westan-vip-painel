@@ -6,6 +6,16 @@ const usernameCache = new Map();
 let pending = new Set();
 let pendingUsernames = new Set();
 let scheduled = false;
+let scanTimer = null;
+let inFlight = false;
+let lastFetchAt = 0;
+let backoffUntil = 0;
+let observer;
+
+const SCAN_DEBOUNCE_MS = 450;
+const REQUEST_THROTTLE_MS = 1_500;
+const RATE_LIMIT_BACKOFF_MS = 60_000;
+const MAX_BATCH_SIZE = 80;
 
 function styleForNickname(style) {
   if (!style) {
@@ -95,12 +105,24 @@ function decoratePost(post, data) {
 }
 
 async function fetchUsers(ids, usernames) {
-  const response = await ajax("/westan/vip-painel/post-users", {
-    data: {
-      ids: ids.join(","),
-      usernames: usernames.join(","),
-    },
-  });
+  let response;
+
+  try {
+    response = await ajax("/westan/vip-painel/post-users", {
+      data: {
+        ids: ids.join(","),
+        usernames: usernames.join(","),
+      },
+    });
+  } catch (error) {
+    if (error?.jqXHR?.status === 429 || error?.status === 429) {
+      backoffUntil = Date.now() + RATE_LIMIT_BACKOFF_MS;
+    }
+    return false;
+  }
+
+  ids.forEach((id) => cache.set(String(id), null));
+  usernames.forEach((username) => usernameCache.set(String(username), null));
 
   Object.entries(response.users || {}).forEach(([id, data]) => {
     cache.set(String(id), data);
@@ -108,53 +130,100 @@ async function fetchUsers(ids, usernames) {
   Object.entries(response.users_by_username || {}).forEach(([username, data]) => {
     usernameCache.set(String(username), data);
   });
+
+  return true;
 }
 
 async function scanPosts() {
   scheduled = false;
+  scanTimer = null;
+  if (inFlight || Date.now() < backoffUntil) {
+    return;
+  }
+
+  if (Date.now() - lastFetchAt < REQUEST_THROTTLE_MS) {
+    scheduleScan(REQUEST_THROTTLE_MS);
+    return;
+  }
+
   const posts = Array.from(document.querySelectorAll(".topic-post, article[data-post-id], article[data-user-id]"));
   const missing = [];
   const missingUsernames = [];
+  let hasMoreMissing = false;
 
   posts.forEach((post) => {
     const userId = findPostUserId(post);
     const username = findPostUsername(post);
 
     if (userId && cache.has(String(userId))) {
-      decoratePost(post, cache.get(String(userId)));
+      const data = cache.get(String(userId));
+      if (data) {
+        decoratePost(post, data);
+      }
     } else if (username && usernameCache.has(String(username))) {
-      decoratePost(post, usernameCache.get(String(username)));
+      const data = usernameCache.get(String(username));
+      if (data) {
+        decoratePost(post, data);
+      }
     } else if (userId && !pending.has(String(userId))) {
-      pending.add(String(userId));
-      missing.push(String(userId));
+      if (missing.length < MAX_BATCH_SIZE) {
+        pending.add(String(userId));
+        missing.push(String(userId));
+      } else {
+        hasMoreMissing = true;
+      }
     } else if (username && !pendingUsernames.has(String(username))) {
-      pendingUsernames.add(String(username));
-      missingUsernames.push(String(username));
+      if (missingUsernames.length < MAX_BATCH_SIZE) {
+        pendingUsernames.add(String(username));
+        missingUsernames.push(String(username));
+      } else {
+        hasMoreMissing = true;
+      }
     }
   });
 
   if (missing.length > 0 || missingUsernames.length > 0) {
-    await fetchUsers(missing, missingUsernames);
-    pending = new Set([...pending].filter((id) => !missing.includes(id)));
-    pendingUsernames = new Set([...pendingUsernames].filter((username) => !missingUsernames.includes(username)));
+    inFlight = true;
+    let fetched = false;
+    try {
+      fetched = await fetchUsers(missing, missingUsernames);
+    } finally {
+      inFlight = false;
+      lastFetchAt = Date.now();
+      pending = new Set([...pending].filter((id) => !missing.includes(id)));
+      pendingUsernames = new Set([...pendingUsernames].filter((username) => !missingUsernames.includes(username)));
+    }
+
+    if (!fetched) {
+      return;
+    }
+
     posts.forEach((post) => {
       const userId = findPostUserId(post);
       const username = findPostUsername(post);
-      if (cache.has(String(userId))) {
-        decoratePost(post, cache.get(String(userId)));
-      } else if (usernameCache.has(String(username))) {
-        decoratePost(post, usernameCache.get(String(username)));
+      const data = cache.get(String(userId)) || usernameCache.get(String(username));
+      if (data) {
+        decoratePost(post, data);
       }
     });
   }
+
+  if (hasMoreMissing) {
+    scheduleScan(REQUEST_THROTTLE_MS);
+  }
 }
 
-function scheduleScan() {
+function scheduleScan(delay = SCAN_DEBOUNCE_MS) {
   if (scheduled) {
     return;
   }
   scheduled = true;
-  window.requestAnimationFrame(scanPosts);
+  scanTimer = window.setTimeout(() => {
+    scanPosts().catch(() => {
+      scheduled = false;
+      scanTimer = null;
+    });
+  }, delay);
 }
 
 export default apiInitializer("1.8.0", (api) => {
@@ -180,11 +249,19 @@ export default apiInitializer("1.8.0", (api) => {
     });
   }
 
-  scheduleScan();
+  if (scanTimer) {
+    window.clearTimeout(scanTimer);
+    scanTimer = null;
+    scheduled = false;
+  }
 
-  const observer = new MutationObserver(scheduleScan);
+  observer?.disconnect();
+  observer = new MutationObserver(scheduleScan);
   observer.observe(document.documentElement, {
     childList: true,
     subtree: true,
   });
+
+  api.onPageChange?.(() => scheduleScan());
+  scheduleScan();
 });
