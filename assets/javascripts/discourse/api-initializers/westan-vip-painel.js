@@ -23,7 +23,8 @@ function styleForNickname(style) {
   }
   return [
     `background-image:linear-gradient(120deg, ${style.from}, ${style.to}, ${style.from})`,
-    "background-size:220% 220%",
+    "background-size:240% 240%",
+    "background-position:0% 50%",
     "-webkit-background-clip:text",
     "background-clip:text",
     "color:transparent",
@@ -87,6 +88,7 @@ function decoratePost(post, data) {
     post.querySelector(".topic-meta-data .names") ||
     post.querySelector(".topic-meta-data");
   if (names && data.custom_title) {
+    names.classList.add("westan-vip-names");
     let title = names.querySelector(".westan-vip-user-title");
     if (!title) {
       title = document.createElement("div");
