@@ -40,6 +40,31 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function classToken(value) {
+  return String(value || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function badgeClasses(theme) {
+  const classes = ["westan-vip-post-badge"];
+  const id = classToken(theme.id);
+  const name = classToken(theme.name);
+
+  if (id) {
+    classes.push(`westan-vip-theme-${id}`);
+  }
+
+  if (name) {
+    classes.push(`westan-vip-theme-name-${name}`);
+  }
+
+  return classes.join(" ");
+}
+
 function badgeHtml(theme) {
   if (!theme) {
     return "";
@@ -57,7 +82,7 @@ function badgeHtml(theme) {
     ? `<img class="westan-vip-post-badge__logo" src="${safeLogo}" alt="${safeName}">`
     : `<span>${escapeHtml(theme.badgeText || "VIP")}</span>`;
 
-  return `<span class="westan-vip-post-badge" title="${safeName}">${background}${content}</span>`;
+  return `<span class="${badgeClasses(theme)}" title="${safeName}">${background}${content}</span>`;
 }
 
 function findPostUserId(post) {

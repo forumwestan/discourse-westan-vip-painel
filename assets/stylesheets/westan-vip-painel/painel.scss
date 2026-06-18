@@ -444,6 +444,66 @@
   }
 }
 
+@keyframes westan-vip-watch-burn-core {
+  0%,
+  100% {
+    background-position: 42% 86%, 58% 92%, 50% 100%, 0% 50%;
+    filter: blur(0.2px) saturate(1.25);
+    opacity: 0.92;
+    transform: translate3d(0, 2px, 0) scale(1);
+  }
+
+  35% {
+    background-position: 46% 70%, 52% 78%, 47% 96%, 100% 50%;
+    filter: blur(0.6px) saturate(1.55);
+    opacity: 1;
+    transform: translate3d(-1px, -2px, 0) scale(1.04);
+  }
+
+  70% {
+    background-position: 56% 74%, 42% 82%, 54% 98%, 46% 50%;
+    filter: blur(0.35px) saturate(1.4);
+    opacity: 0.96;
+    transform: translate3d(1px, -1px, 0) scale(1.02);
+  }
+}
+
+@keyframes westan-vip-watch-burn-embers {
+  0% {
+    background-position: 12% 100%, 30% 110%, 62% 105%, 86% 115%;
+    opacity: 0.18;
+    transform: translateY(10px);
+  }
+
+  45% {
+    background-position: 18% 38%, 36% 48%, 58% 30%, 82% 42%;
+    opacity: 0.64;
+  }
+
+  100% {
+    background-position: 16% -12%, 42% -18%, 66% -8%, 90% -22%;
+    opacity: 0.04;
+    transform: translateY(-16px);
+  }
+}
+
+@keyframes westan-vip-watch-burn-aura {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 1px rgba(255, 138, 0, 0.42),
+      0 0 16px rgba(255, 65, 0, 0.52),
+      0 0 30px rgba(255, 177, 0, 0.26);
+  }
+
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(255, 214, 10, 0.58),
+      0 0 22px rgba(255, 82, 0, 0.72),
+      0 0 44px rgba(255, 0, 85, 0.34);
+  }
+}
+
 .topic-meta-data .names.westan-vip-names,
 .names.westan-vip-names,
 .westan-vip-names {
@@ -525,6 +585,68 @@
     font-weight: 950;
     letter-spacing: 0.04em;
     text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  }
+}
+
+.westan-vip-post-badge.westan-vip-theme-tema-1781739906453,
+.westan-vip-post-badge.westan-vip-theme-name-watch-it-burn {
+  isolation: isolate;
+  overflow: hidden;
+  border-color: rgba(255, 214, 10, 0.72);
+  background:
+    linear-gradient(#160500, #160500) padding-box,
+    linear-gradient(120deg, #ff2d00, #ffb000, #fff1a8, #ff3d00, #ff2d00) border-box;
+  background-size: 100% 100%, 260% 260%;
+  animation:
+    westan-vip-badge-border 2.3s linear infinite,
+    westan-vip-badge-pulse 2.1s ease-in-out infinite,
+    westan-vip-watch-burn-aura 1.8s ease-in-out infinite;
+
+  &::before,
+  &::after {
+    position: absolute;
+    pointer-events: none;
+    content: "";
+  }
+
+  &::before {
+    z-index: 1;
+    inset: -34% -12% -16%;
+    border-radius: 48% 52% 24% 26%;
+    background:
+      radial-gradient(ellipse at 42% 86%, rgba(255, 244, 186, 0.98) 0 8%, rgba(255, 176, 0, 0.86) 13%, transparent 31%),
+      radial-gradient(ellipse at 58% 92%, rgba(255, 98, 0, 0.9) 0 12%, rgba(255, 0, 76, 0.46) 24%, transparent 42%),
+      radial-gradient(ellipse at 50% 100%, rgba(255, 43, 0, 0.96) 0 22%, rgba(84, 12, 0, 0.92) 52%, transparent 70%),
+      linear-gradient(120deg, rgba(255, 46, 0, 0.46), rgba(255, 204, 0, 0.34), rgba(255, 0, 102, 0.32));
+    background-size: 120% 120%, 130% 130%, 100% 100%, 240% 240%;
+    mix-blend-mode: screen;
+    animation: westan-vip-watch-burn-core 1.25s ease-in-out infinite;
+  }
+
+  &::after {
+    z-index: 2;
+    inset: 0;
+    background:
+      radial-gradient(circle, rgba(255, 238, 156, 0.95) 0 1px, transparent 2px),
+      radial-gradient(circle, rgba(255, 117, 24, 0.84) 0 1px, transparent 2px),
+      radial-gradient(circle, rgba(255, 226, 89, 0.72) 0 1px, transparent 2px),
+      radial-gradient(circle, rgba(255, 64, 0, 0.72) 0 1px, transparent 2px);
+    background-repeat: no-repeat;
+    background-size: 22px 22px, 18px 18px, 16px 16px, 20px 20px;
+    mix-blend-mode: screen;
+    animation: westan-vip-watch-burn-embers 1.55s linear infinite;
+  }
+
+  .westan-vip-post-badge__bg {
+    z-index: 0;
+    opacity: 0.48;
+    filter: contrast(1.15) saturate(1.45);
+  }
+
+  .westan-vip-post-badge__logo,
+  span {
+    z-index: 3;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.78));
   }
 }
 
