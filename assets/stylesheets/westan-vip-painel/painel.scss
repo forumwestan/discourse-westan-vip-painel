@@ -599,8 +599,11 @@
   background-size: 100% 100%, 260% 260%;
   animation:
     westan-vip-badge-border 2.3s linear infinite,
-    westan-vip-badge-pulse 2.1s ease-in-out infinite,
-    westan-vip-watch-burn-aura 1.8s ease-in-out infinite;
+    westan-vip-badge-pulse 2.1s ease-in-out infinite;
+  box-shadow:
+    0 0 0 1px rgba(255, 138, 0, 0.42),
+    0 0 16px rgba(255, 65, 0, 0.52),
+    0 0 30px rgba(255, 177, 0, 0.26);
 
   &::before,
   &::after {
@@ -611,8 +614,9 @@
 
   &::before {
     z-index: 1;
-    inset: -34% -12% -16%;
-    border-radius: 48% 52% 24% 26%;
+    inset: 0;
+    overflow: hidden;
+    border-radius: inherit;
     background:
       radial-gradient(ellipse at 42% 86%, rgba(255, 244, 186, 0.98) 0 8%, rgba(255, 176, 0, 0.86) 13%, transparent 31%),
       radial-gradient(ellipse at 58% 92%, rgba(255, 98, 0, 0.9) 0 12%, rgba(255, 0, 76, 0.46) 24%, transparent 42%),
@@ -626,6 +630,8 @@
   &::after {
     z-index: 2;
     inset: 0;
+    overflow: hidden;
+    border-radius: inherit;
     background:
       radial-gradient(circle, rgba(255, 238, 156, 0.95) 0 1px, transparent 2px),
       radial-gradient(circle, rgba(255, 117, 24, 0.84) 0 1px, transparent 2px),
@@ -639,7 +645,8 @@
 
   .westan-vip-post-badge__bg {
     z-index: 0;
-    opacity: 0.48;
+    border-radius: inherit;
+    opacity: 0.66;
     filter: contrast(1.15) saturate(1.45);
   }
 
@@ -664,6 +671,28 @@
     height: 40px;
     margin-left: 6px;
     border-radius: 16px;
+  }
+
+  .westan-vip-post-badge.westan-vip-theme-tema-1781739906453,
+  .westan-vip-post-badge.westan-vip-theme-name-watch-it-burn {
+    box-shadow:
+      0 0 0 1px rgba(255, 184, 0, 0.34),
+      0 0 10px rgba(255, 75, 0, 0.22),
+      0 0 18px rgba(255, 177, 0, 0.14);
+
+    &::before {
+      opacity: 0.46;
+      filter: saturate(1.1);
+    }
+
+    &::after {
+      opacity: 0.28;
+    }
+
+    .westan-vip-post-badge__bg {
+      opacity: 0.86;
+      filter: contrast(1.05) saturate(1.12);
+    }
   }
 
   .westan-vip-user-title {
