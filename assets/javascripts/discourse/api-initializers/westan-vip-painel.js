@@ -17,19 +17,20 @@ const SCAN_DEBOUNCE_MS = 450;
 const REQUEST_THROTTLE_MS = 1_500;
 const RATE_LIMIT_BACKOFF_MS = 60_000;
 const MAX_BATCH_SIZE = 80;
+const VERIFIED_BADGE_SELECTOR =
+  ".westan-vip-verified, .westan-vip-native-verified";
 
-function styleForNickname(style) {
-  if (!style) {
-    return "";
+function applyNicknameStyle(element, style) {
+  if (!element || !style) {
+    return;
   }
-  return [
-    `background-image:linear-gradient(120deg, ${style.from}, ${style.to}, ${style.from})`,
-    "background-size:240% 240%",
-    "background-position:0% 50%",
-    "-webkit-background-clip:text",
-    "background-clip:text",
-    "color:transparent",
-  ].join(";");
+
+  element.style.backgroundImage = `linear-gradient(120deg, ${style.from}, ${style.to}, ${style.from})`;
+  element.style.backgroundSize = "240% 240%";
+  element.style.backgroundPosition = "0% 50%";
+  element.style.webkitBackgroundClip = "text";
+  element.style.backgroundClip = "text";
+  element.style.color = "transparent";
 }
 
 function escapeHtml(value) {
@@ -106,15 +107,25 @@ function activateVerifiedBadge(badge) {
   }
 
   badge.dataset.tooltipReady = "true";
+  badge.dataset.tooltip = "Membro Verificado";
+  badge.setAttribute("aria-label", "Membro Verificado");
+  badge.setAttribute("aria-expanded", "false");
+  if (badge.tagName !== "BUTTON") {
+    badge.setAttribute("role", "button");
+    badge.setAttribute("tabindex", "0");
+  }
+
   badge.addEventListener("click", (event) => {
     event.preventDefault();
     event.stopPropagation();
 
     const willOpen = !badge.classList.contains("is-tooltip-visible");
-    document.querySelectorAll(".westan-vip-verified.is-tooltip-visible").forEach((item) => {
-      item.classList.remove("is-tooltip-visible");
-      item.setAttribute("aria-expanded", "false");
-    });
+    document
+      .querySelectorAll(`${VERIFIED_BADGE_SELECTOR}.is-tooltip-visible`)
+      .forEach((item) => {
+        item.classList.remove("is-tooltip-visible");
+        item.setAttribute("aria-expanded", "false");
+      });
 
     badge.classList.toggle("is-tooltip-visible", willOpen);
     badge.setAttribute("aria-expanded", String(willOpen));
@@ -124,6 +135,12 @@ function activateVerifiedBadge(badge) {
     badge.classList.remove("is-tooltip-visible");
     badge.setAttribute("aria-expanded", "false");
   });
+}
+
+function activateNativeVerifiedBadges(root = document) {
+  root
+    .querySelectorAll(".westan-vip-native-verified")
+    .forEach(activateVerifiedBadge);
 }
 
 function findPostUserId(post) {
@@ -138,7 +155,7 @@ function findPostUsername(post) {
   return userCard?.dataset?.userCard || userCard?.textContent?.trim()?.replace(/^@/, "");
 }
 
-function decoratePost(post, data) {
+function decoratePost(post, data, { renderVerifiedBadge = true } = {}) {
   const nameLink =
     post.querySelector(".topic-meta-data .names a") ||
     post.querySelector(".topic-meta-data .username a") ||
@@ -146,26 +163,25 @@ function decoratePost(post, data) {
     post.querySelector(".names a");
 
   const nameContainer = nameLink?.closest(".username") || nameLink?.parentElement;
-  if (nameLink && !nameContainer?.querySelector(".westan-vip-verified")) {
+  nameContainer?.classList.add("westan-vip-verified-name");
+
+  if (
+    renderVerifiedBadge &&
+    nameLink &&
+    !nameContainer?.querySelector(VERIFIED_BADGE_SELECTOR)
+  ) {
     nameLink.insertAdjacentHTML(
       "afterend",
       verifiedBadgeHtml(data.username || data.id)
     );
 
     const verifiedBadge = nameLink.nextElementSibling;
-    if (
-      verifiedBadge?.classList.contains("westan-vip-verified") &&
-      window.getComputedStyle(nameLink.parentElement).flexDirection ===
-        "row-reverse"
-    ) {
-      verifiedBadge.classList.add("westan-vip-verified--reverse");
-    }
     activateVerifiedBadge(verifiedBadge);
   }
 
   if (nameLink && data.nickname_style) {
     nameLink.classList.add("westan-vip-nickname");
-    nameLink.setAttribute("style", `${nameLink.getAttribute("style") || ""};${styleForNickname(data.nickname_style)}`);
+    applyNicknameStyle(nameLink, data.nickname_style);
   }
 
   const names =
@@ -301,15 +317,9 @@ function decorateUserCard(card, data) {
     "afterend",
     verifiedBadgeHtml(`card-${data.username || data.id}`)
   );
+  nameContainer.classList.add("westan-vip-verified-card-name");
   const verifiedBadge = nameLink.nextElementSibling;
   verifiedBadge?.classList.add("westan-vip-verified--user-card");
-
-  if (
-    verifiedBadge?.classList.contains("westan-vip-verified") &&
-    window.getComputedStyle(nameContainer).flexDirection === "row-reverse"
-  ) {
-    verifiedBadge.classList.add("westan-vip-verified--reverse");
-  }
 
   activateVerifiedBadge(verifiedBadge);
 }
@@ -355,6 +365,8 @@ async function scanPosts() {
     scheduleScan(REQUEST_THROTTLE_MS);
     return;
   }
+
+  activateNativeVerifiedBadges();
 
   const posts = Array.from(document.querySelectorAll(".topic-post, article[data-post-id], article[data-user-id]"));
   const userCards = Array.from(document.querySelectorAll(".user-card"));
@@ -496,6 +508,33 @@ function scheduleScan(delay = SCAN_DEBOUNCE_MS) {
 }
 
 export default apiInitializer("1.8.0", (api) => {
+  api.addTrackedPostProperties("westan_vip_painel");
+  api.addPosterIcons((_customFields, post) => {
+    if (!post.westan_vip_painel?.verified) {
+      return;
+    }
+
+    return {
+      icon: "check",
+      className: "westan-vip-native-verified",
+      title: "Membro Verificado",
+    };
+  });
+
+  api.decorateCookedElement(
+    (cookedElement, helper) => {
+      const data = helper.model?.westan_vip_painel;
+      const post = cookedElement.closest(
+        ".topic-post, article[data-post-id], article[data-user-id]"
+      );
+      if (data && post) {
+        decoratePost(post, data, { renderVerifiedBadge: false });
+        activateNativeVerifiedBadges(post);
+      }
+    },
+    { onlyStream: true }
+  );
+
   const currentUser = api.getCurrentUser();
   if (currentUser?.staff) {
     api.addAdminSidebarSectionLink?.("plugins", {
