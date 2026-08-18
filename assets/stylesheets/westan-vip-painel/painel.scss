@@ -5,6 +5,63 @@
   font-family: "Nunito Sans", ui-sans-serif, system-ui, sans-serif;
 }
 
+.westan-vip-verified {
+  position: relative;
+  display: inline-flex;
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  margin-inline-start: 5px;
+  filter:
+    drop-shadow(0 1px 0 rgba(255, 244, 174, 0.34))
+    drop-shadow(0 2px 2px rgba(92, 48, 0, 0.3));
+  vertical-align: -0.18em;
+
+  svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+}
+
+.westan-vip-verified__depth {
+  fill: #bd7300;
+}
+
+.westan-vip-verified__rim {
+  stroke-width: 0.8;
+}
+
+.westan-vip-verified__check,
+.westan-vip-verified__check-shadow {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.35;
+}
+
+.westan-vip-verified__check-shadow {
+  stroke: #b86f00;
+}
+
+.westan-vip-verified__check {
+  stroke: #fff;
+}
+
+.westan-vip-profile-name {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+
+  > .westan-vip-verified {
+    width: 21px;
+    height: 21px;
+  }
+}
+
 .westan-vip-panel__inner {
   width: min(100%, 1090px);
   margin: 0 auto;

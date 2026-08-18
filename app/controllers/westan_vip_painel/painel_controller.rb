@@ -128,6 +128,8 @@ module WestanVipPainel
       {
         id: user.id,
         username: user.username,
+        name: user.name.presence || user.username,
+        verified: true,
         custom_title: selection[:custom_title],
         primary_group_name: primary_group_name(user),
         badge_enabled: selection[:badge_enabled],
