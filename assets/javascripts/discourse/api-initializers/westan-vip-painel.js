@@ -155,7 +155,7 @@ function findPostUsername(post) {
   return userCard?.dataset?.userCard || userCard?.textContent?.trim()?.replace(/^@/, "");
 }
 
-function decoratePost(post, data, { renderVerifiedBadge = true } = {}) {
+function decoratePost(post, data) {
   const nameLink =
     post.querySelector(".topic-meta-data .names a") ||
     post.querySelector(".topic-meta-data .username a") ||
@@ -164,20 +164,6 @@ function decoratePost(post, data, { renderVerifiedBadge = true } = {}) {
 
   const nameContainer = nameLink?.closest(".username") || nameLink?.parentElement;
   nameContainer?.classList.add("westan-vip-verified-name");
-
-  if (
-    renderVerifiedBadge &&
-    nameLink &&
-    !nameContainer?.querySelector(VERIFIED_BADGE_SELECTOR)
-  ) {
-    nameLink.insertAdjacentHTML(
-      "afterend",
-      verifiedBadgeHtml(data.username || data.id)
-    );
-
-    const verifiedBadge = nameLink.nextElementSibling;
-    activateVerifiedBadge(verifiedBadge);
-  }
 
   if (nameLink && data.nickname_style) {
     nameLink.classList.add("westan-vip-nickname");
@@ -528,7 +514,7 @@ export default apiInitializer("1.8.0", (api) => {
         ".topic-post, article[data-post-id], article[data-user-id]"
       );
       if (data && post) {
-        decoratePost(post, data, { renderVerifiedBadge: false });
+        decoratePost(post, data);
         activateNativeVerifiedBadges(post);
       }
     },
