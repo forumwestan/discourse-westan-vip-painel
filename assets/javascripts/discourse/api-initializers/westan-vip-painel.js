@@ -360,8 +360,6 @@ async function scanPosts() {
     return;
   }
 
-  activateNativeVerifiedBadges();
-
   const posts = Array.from(document.querySelectorAll(".topic-post, article[data-post-id], article[data-user-id]"));
   const userCards = Array.from(document.querySelectorAll(".user-card"));
   const currentProfileUsername = profileUsername();
