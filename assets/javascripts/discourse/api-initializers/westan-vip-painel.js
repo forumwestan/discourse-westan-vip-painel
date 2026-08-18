@@ -17,8 +17,7 @@ const SCAN_DEBOUNCE_MS = 450;
 const REQUEST_THROTTLE_MS = 1_500;
 const RATE_LIMIT_BACKOFF_MS = 60_000;
 const MAX_BATCH_SIZE = 80;
-const VERIFIED_BADGE_SELECTOR =
-  ".westan-vip-verified, .westan-vip-native-verified";
+const VERIFIED_BADGE_SELECTOR = ".westan-vip-verified";
 
 function applyNicknameStyle(element, style) {
   if (!element || !style) {
@@ -137,12 +136,6 @@ function activateVerifiedBadge(badge) {
   });
 }
 
-function activateNativeVerifiedBadges(root = document) {
-  root
-    .querySelectorAll(".westan-vip-native-verified")
-    .forEach(activateVerifiedBadge);
-}
-
 function findPostUserId(post) {
   return post.dataset.userId || post.getAttribute("data-user-id");
 }
@@ -165,6 +158,18 @@ function decoratePost(post, data) {
   const nameContainer = nameLink?.closest(".username") || nameLink?.parentElement;
   nameContainer?.classList.add("westan-vip-verified-name");
 
+  if (
+    data.verified &&
+    nameLink &&
+    !nameContainer?.querySelector(VERIFIED_BADGE_SELECTOR)
+  ) {
+    nameLink.insertAdjacentHTML(
+      "afterend",
+      verifiedBadgeHtml(data.username || data.id)
+    );
+    activateVerifiedBadge(nameLink.nextElementSibling);
+  }
+
   if (nameLink && data.nickname_style) {
     nameLink.classList.add("westan-vip-nickname");
     applyNicknameStyle(nameLink, data.nickname_style);
@@ -173,6 +178,9 @@ function decoratePost(post, data) {
   const names =
     post.querySelector(".topic-meta-data .names") ||
     post.querySelector(".topic-meta-data");
+  if (data.verified) {
+    names?.classList.add("westan-vip-has-verified");
+  }
   if (names && data.custom_title) {
     names.classList.add("westan-vip-names");
     let title = names.querySelector(".westan-vip-user-title");
@@ -495,17 +503,6 @@ function scheduleScan(delay = SCAN_DEBOUNCE_MS) {
 
 export default apiInitializer("1.8.0", (api) => {
   api.addTrackedPostProperties("westan_vip_painel");
-  api.addPosterIcons((_customFields, post) => {
-    if (!post.westan_vip_painel?.verified) {
-      return;
-    }
-
-    return {
-      icon: "check",
-      className: "westan-vip-native-verified",
-      title: "Membro Verificado",
-    };
-  });
 
   api.decorateCookedElement(
     (cookedElement, helper) => {
@@ -515,7 +512,6 @@ export default apiInitializer("1.8.0", (api) => {
       );
       if (data && post) {
         decoratePost(post, data);
-        activateNativeVerifiedBadges(post);
       }
     },
     { onlyStream: true }
