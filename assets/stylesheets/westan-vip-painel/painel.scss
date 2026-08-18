@@ -75,6 +75,18 @@
   overflow: visible !important;
 }
 
+.westan-vip-verified-name {
+  > a {
+    order: 0 !important;
+  }
+
+  > .westan-vip-verified {
+    order: 1 !important;
+    margin-inline-start: 5px;
+    margin-inline-end: 0;
+  }
+}
+
 .westan-vip-has-verified {
   position: relative;
   z-index: 20;
