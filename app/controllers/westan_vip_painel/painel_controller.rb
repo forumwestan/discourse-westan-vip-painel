@@ -37,7 +37,8 @@ module WestanVipPainel
       end
       if params[:theme_id] == "custom"
         RateLimiter.new(current_user, "westan-premium-badge", 5, 1.minute).performed!
-        changes[fields[:custom_logo_url]] = BadgeImage.validate!(params[:custom_logo_url], kind: :logo)
+        logo = params[:custom_logo_url].to_s.strip
+        changes[fields[:custom_logo_url]] = logo.blank? ? "" : BadgeImage.validate!(logo, kind: :logo)
         changes[fields[:custom_background_url]] = BadgeImage.validate!(params[:custom_background_url], kind: :background)
       end
       %i[verified_enabled custom_card_enabled].each do |key|

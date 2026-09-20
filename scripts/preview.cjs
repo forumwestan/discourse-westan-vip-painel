@@ -26,9 +26,9 @@ const isPremium = params.get('member') !== 'redeemed';
 document.documentElement.dataset.theme = params.get('theme') || 'light';
 const svg = text => 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96"><rect width="96" height="96" rx="48" fill="#e0c9ef"/><text x="48" y="62" text-anchor="middle" fill="#8134ad" font-family="sans-serif" font-size="32">'+text+'</text></svg>');
 const model = { can_use: true, is_premium: isPremium, user: { id:1, name:'Igor Freitas', username:'igorfreitas', avatar_url:svg('IF') },
- selection: { theme_id:'none', nickname_color:'lilás degrade', verified_enabled:isPremium, custom_title:isPremium?'Westan é minha casa':'' },
+ selection: { theme_id:'none', nickname_color:'purpleglow', verified_enabled:isPremium, custom_title:isPremium?'Westan é minha casa':'' },
  themes: [ {id:'gaga',name:'Gaga',badgeText:'GAGA'}, {id:'cowboy',name:'Cowboy Carter',badgeText:'BEY'}, {id:'sabrina',name:'Sabrina Carpenter',badgeText:'SC'}, {id:'brat',name:'Brat',badgeText:'brat'}, {id:'pop',name:'Pop culture',badgeText:'POP'}, {id:'westan',name:'Westan',badgeText:'westan'}, {id:'premium',name:'Premium',badgeText:'Premium'} ],
- colors: [{value:'lilás degrade',name:'Lilás degradê',from:'#A12FE2',to:'#DA8AFF'},{value:'dourado',name:'Dourado',from:'#D97706',to:'#FDE68A'},{value:'azul',name:'Azul',from:'#2563EB',to:'#38BDF8'}] };
+ colors: ['red','pink','esmerald','gold','orangepowerfurl','purpleglow','areia','rose','bluegray','hotcamp','blark'].map(value=>({value,name:value,from:null,to:null})) };
 class Component { constructor(args) { this.args = args; } }
 const htmlSafe = value => new Handlebars.SafeString(value);
 const popupAjaxError = error => alert(error.message);

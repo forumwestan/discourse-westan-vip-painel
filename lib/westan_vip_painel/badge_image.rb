@@ -17,10 +17,10 @@ module WestanVipPainel
       file.rewind
       size = FastImage.size(file)
       formats = kind == :logo ? %i[png webp] : %i[png jpeg gif]
-      dimensions = kind == :logo ? [230, 90] : [455, 120]
+      minimum = kind == :logo ? [230, 90] : [455, 120]
       raise Invalid, "Formato inválido para #{kind == :logo ? 'o logo' : 'o background'}." unless formats.include?(type)
-      unless size == dimensions
-        raise Invalid, "A imagem deve ter #{dimensions.join(' × ')} pixels."
+      unless size && size[0] >= minimum[0] && size[1] >= minimum[1]
+        raise Invalid, "A imagem deve ter no mínimo #{minimum.join(' × ')} pixels (largura × altura)."
       end
       clean
     rescue Invalid

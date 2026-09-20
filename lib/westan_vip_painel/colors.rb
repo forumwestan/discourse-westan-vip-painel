@@ -58,17 +58,17 @@ module WestanVipPainel
     end
 
     def self.options(user = nil)
-      result = palette
-      legacy = user && legacy_style(user)
-      result << legacy if legacy && selected(user) == legacy[:value]
       field = UserField.find_by(id: field_id)
       values = field ? field.user_field_options.order(:id).pluck(:value) : []
-      values << selected(user) if user
-      values.compact.each do |value|
-        next if result.any? { |item| item[:value] == normalize(value) }
-        result << { value: normalize(value), name: value.to_s, from: nil, to: nil }
-      end
-      result
+      appearances = palette
+      # The original vip-westan field is the only source of selectable colors.
+      # Saved/legacy values and appearance mappings must never add new options.
+      values.compact.filter_map do |value|
+        normalized = normalize(value)
+        next if normalized.empty?
+        style = appearances.find { |item| item[:value] == normalized }
+        { value: normalized, name: value.to_s, from: style&.dig(:from), to: style&.dig(:to) }
+      end.uniq { |item| item[:value] }
     end
 
     def self.style(user)

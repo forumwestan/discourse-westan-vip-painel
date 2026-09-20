@@ -7,7 +7,7 @@ Plugin Discourse **Ajustes do Premium**. Integra as cores do antigo `vip-westan`
 | Membro | Recursos |
 | --- | --- |
 | Assinante no grupo `westan_vip_painel_premium_group` | Cores, selo verificado, título, catálogo de badges e badge próprio |
-| VIP apenas no grupo `westan_vip_painel_group` | Escolha da cor, na tela **Ajustes da cor** |
+| VIP apenas no grupo `westan_vip_painel_group` | Escolha da cor, na tela **Ajuste do VIP** |
 | Sem nenhum dos grupos | Sem acesso para salvar ajustes |
 
 Padrões: `vip_elegivel` para assinantes pagantes; `vip` para VIP geral/resgatado. A assinatura é reconhecida pela participação no grupo, não pelo pagamento em si: a administração continua incluindo/removendo os pagantes manualmente. Ser administrador não concede automaticamente a aparência Premium.
@@ -28,9 +28,11 @@ Valores legados sem cores cadastradas são preservados, mas sua aparência conti
 
 ## Catálogos e badge próprio
 
-Administração em `/admin/plugins/westan-vip-painel`: catálogo de badges e paleta única de cores. O `value` da cor corresponde ao texto normalizado do antigo campo de usuário; `from` e `to` são cores hexadecimais `#RRGGBB`.
+Administração em `/admin/plugins/westan-vip-painel`: catálogo de badges e mapeamentos de aparência das cores. O seletor usa exclusivamente as opções do campo de usuário original do `vip-westan` (mais `Padrão`, para limpar a escolha). Os mapeamentos e valores antigos salvos não adicionam opções ao seletor. Escolhas antigas são preservadas até o membro selecionar outra cor. O `value` do mapeamento corresponde ao texto normalizado do campo; `from` e `to` são hexadecimais `#RRGGBB`.
 
-Badge próprio: logo PNG/WEBP **230×90 px** e fundo PNG/JPG/GIF **455×120 px**, até **5 MB por arquivo**, URLs HTTPS. O servidor inspeciona o conteúdo e as dimensões pelo downloader seguro do Discourse; URLs privadas/redirecionamentos não permitidos são bloqueados. As imagens continuam hospedadas na URL informada e devem permanecer disponíveis. O envio aplica diretamente o badge, sem fila de moderação.
+A prévia aplica as classes `vip-color-*` do tema original e inclui os mesmos gradientes como fallback. A aba ativa é lilás. Membros logados elegíveis a Premium veem a faixa “Você agora é premium” na home (`/` e seu acesso por `/latest`), com link para `/vip-painel`; visitantes, VIP resgatado, categorias e tópicos não a exibem.
+
+Badge próprio: logo **opcional**, PNG/WEBP de **no mínimo 230×90 px**, e fundo **obrigatório**, PNG/JPG/GIF de **no mínimo 455×120 px**, até **5 MB por arquivo**, URLs HTTPS. Ambas as dimensões devem atingir o mínimo; imagens maiores e outras proporções são aceitas. Sem logo, o badge exibe apenas o fundo, sem texto sobreposto. O logo se ajusta sem distorção e o fundo preenche a área com recorte. O servidor inspeciona o conteúdo e as dimensões pelo downloader seguro do Discourse; URLs privadas/redirecionamentos não permitidos são bloqueados. As imagens continuam hospedadas na URL informada e devem permanecer disponíveis. O envio aplica diretamente o badge, sem fila de moderação.
 
 O selo fica depois do nome nos posts, perfil e user card. Seu tooltip é montado fora do contêiner do nome para não ser cortado. Cores do painel seguem as variáveis do tema Discourse, sem um alternador próprio de light/dark.
 

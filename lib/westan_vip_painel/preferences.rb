@@ -69,7 +69,7 @@ module WestanVipPainel
     def self.theme(user, selection)
       return nil unless premium?(user) && selection[:badge_enabled]
       if selection[:theme_id] == "custom"
-        return nil if selection[:custom_logo_url].blank? || selection[:custom_background_url].blank?
+        return nil if selection[:custom_background_url].blank?
         { "id" => "custom", "name" => "Meu badge", "logoUrl" => selection[:custom_logo_url],
           "badgeBackgroundUrl" => selection[:custom_background_url], "badgeBackgroundIsVideo" => false }
       else

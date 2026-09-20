@@ -17,7 +17,12 @@ module Discourse
   class InvalidParameters < StandardError; end
 end
 module UserField
-  def self.find_by(**); nil; end
+  class << self; attr_accessor :values; end
+  class Options
+    def order(*); self; end
+    def pluck(*); UserField.values; end
+  end
+  def self.find_by(**); values.nil? ? nil : OpenStruct.new(user_field_options: Options.new); end
 end
 SiteSetting = OpenStruct.new
 module WestanVipPainel
@@ -35,6 +40,7 @@ class PremiumPermissionsTest < Minitest::Test
   P = WestanVipPainel::Preferences
   C = WestanVipPainel::Colors
   def setup
+    UserField.values = ["Dourado"]
     SiteSetting.westan_vip_painel_enabled = true
     SiteSetting.westan_vip_painel_group = "vip"
     SiteSetting.westan_vip_painel_premium_group = "vip_elegivel"
@@ -78,6 +84,14 @@ class PremiumPermissionsTest < Minitest::Test
     assert_nil P.payload(@user)
     assert_equal "Remember me", @user.custom_fields["westan_vip_custom_title"]
   end
+  def test_custom_badge_accepts_background_without_logo
+    group("vip_elegivel")
+    @user.custom_fields.merge!("westan_vip_theme_id" => "custom", "westan_vip_custom_background_url" => "https://example.org/bg.png")
+    assert_equal "custom", P.payload(@user)[:theme]["id"]
+    assert_equal "", P.payload(@user)[:theme]["logoUrl"]
+    @user.custom_fields.delete("westan_vip_custom_background_url")
+    assert_nil P.payload(@user)[:theme]
+  end
   def test_preserves_user_field_color_and_legacy_style
     group("vip")
     @user.custom_fields["user_field_6"] = " Dourado "
@@ -91,6 +105,24 @@ class PremiumPermissionsTest < Minitest::Test
   def test_rejects_arbitrary_color_values
     group("vip")
     assert_raises(Discourse::InvalidParameters) { C.assign!(@user, "url(javascript:alert(1))") }
+  end
+  def test_options_only_use_original_field_not_palette_or_saved_values
+    group("vip")
+    UserField.values = ["red", "Blark", " red ", "", nil]
+    @user.custom_fields["user_field_6"] = "dourado"
+    assert_equal ["red", "blark"], C.options(@user).map { |item| item[:value] }
+    assert_equal ["red", "Blark"], C.options(@user).map { |item| item[:name] }
+    assert_equal "dourado", @user.custom_fields["user_field_6"]
+    assert_raises(Discourse::InvalidParameters) { C.assign!(@user, "dourado") }
+    assert_raises(Discourse::InvalidParameters) { C.assign!(@user, "legacy-orchid") }
+    C.assign!(@user, "Blark")
+    assert_equal "blark", @user.custom_fields["user_field_6"]
+  end
+  def test_missing_or_empty_field_does_not_offer_created_colors
+    [nil, []].each do |values|
+      UserField.values = values
+      assert_empty C.options(@user)
+    end
   end
   def test_accepts_group_ids_and_handles_plugin_disabled
     group("vip_elegivel")

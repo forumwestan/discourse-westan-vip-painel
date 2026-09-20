@@ -1,3 +1,21 @@
+.westan-premium-home-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 0 0 20px;
+  padding: 16px 20px;
+  border-radius: 16px;
+  background: #dec5ee;
+  color: #301c3e;
+  > span { display: flex; align-items: center; gap: 10px; }
+  .d-icon { color: inherit; }
+  > a { padding: 9px 16px; border-radius: 999px; background: #301c3e; color: #fff; font-weight: 700; text-decoration: none; }
+  > a:hover { background: #542d70; }
+  > a:focus-visible { outline: 2px solid #301c3e; outline-offset: 3px; }
+}
+
 .westan-premium {
   --premium-surface: var(--secondary, #fff);
   --premium-text: var(--primary, #111);
@@ -30,7 +48,7 @@
     background: var(--premium-soft);
     color: var(--premium-muted);
     font-weight: 700;
-    &[aria-pressed="true"] { background: var(--premium-text); color: var(--premium-surface); }
+    &[aria-pressed="true"] { background: #dec5ee; color: #301c3e; }
   }
 }
 .westan-premium-badges {
@@ -116,6 +134,7 @@
   p { margin: 4px 0 0; font-size: .9rem; }
 }
 .premium-preview-name { display: flex; align-items: center; gap: 6px; font-size: 1.2rem; }
+.premium-preview-nickname { display: inline-block; font-weight: 800; color: var(--premium-text); text-decoration: none; }
 .premium-preview-seal { display: inline-flex; width: 22px; height: 22px; flex: 0 0 auto; filter: drop-shadow(0 2px 2px #85560040); svg { width: 100%; height: 100%; } }
 .westan-premium-save {
   margin-top: 26px;

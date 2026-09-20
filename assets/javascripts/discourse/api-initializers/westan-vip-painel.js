@@ -94,7 +94,7 @@ function badgeHtml(theme) {
     : "";
   const content = theme.logoUrl
     ? `<img class="westan-vip-post-badge__logo" src="${safeLogo}" alt="${safeName}">`
-    : `<span>${escapeHtml(theme.badgeText || "VIP")}</span>`;
+    : theme.id === "custom" ? "" : `<span>${escapeHtml(theme.badgeText || "VIP")}</span>`;
 
   return `<span class="${badgeClasses(theme)}" title="${safeName}">${background}${content}</span>`;
 }
@@ -555,8 +555,8 @@ export default apiInitializer("1.8.0", (api) => {
     api.addCommunitySectionLink?.({
       name: "westan-vip-painel",
       route: "westan-vip-painel",
-      title: currentUser.westan_vip_painel_premium ? "Ajustes do Premium" : "Ajustes da cor",
-      text: currentUser.westan_vip_painel_premium ? "Ajustes do Premium" : "Ajustes da cor",
+      title: currentUser.westan_vip_painel_premium ? "Ajustes do Premium" : "Ajuste do VIP",
+      text: currentUser.westan_vip_painel_premium ? "Ajustes do Premium" : "Ajuste do VIP",
       icon: "crown",
     });
   }

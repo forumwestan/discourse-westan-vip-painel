@@ -3,7 +3,7 @@
 # name: discourse-westan-vip-painel
 # about: Ajustes do Premium: cores, selo, títulos e badges personalizados
 # meta_topic_id: 0
-# version: 0.2.0
+# version: 0.2.1
 # authors: Westan
 # url: https://github.com/forumwestan/discourse-westan-vip-painel
 # required_version: 3.2.0

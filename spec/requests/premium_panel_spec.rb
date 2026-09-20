@@ -11,6 +11,10 @@ RSpec.describe WestanVipPainel::PainelController do
     SiteSetting.westan_vip_painel_enabled = true
     SiteSetting.westan_vip_painel_group = vip.name
     SiteSetting.westan_vip_painel_premium_group = premium.name
+    field = UserField.create!(name: "Cor VIP", description: "Cor do nickname", field_type: "dropdown", editable: true)
+    field.user_field_options.create!(value: "dourado")
+    SiteSetting.westan_vip_painel_color_field_id = field.id
+    SiteSetting.vip_color_field_id = field.id if SiteSetting.respond_to?(:vip_color_field_id)
     sign_in(user)
   end
 
@@ -44,6 +48,15 @@ RSpec.describe WestanVipPainel::PainelController do
     expect(response.parsed_body["decoration"]).to include("verified" => false, "custom_title" => "Meu título")
   end
 
+  it "does not expose or accept palette-only colors" do
+    vip.add(user)
+    SiteSetting.westan_vip_painel_colors_json = '[{"value":"inventada","from":"#123456","to":"#654321"}]'
+    get "/westan/vip-painel.json"
+    expect(response.parsed_body["colors"].map { |color| color["value"] }).to eq(["dourado"])
+    patch "/westan/vip-painel.json", params: { nickname_color: "inventada" }
+    expect(response.status).to eq(400)
+  end
+
   it "does not save either image if custom badge validation fails" do
     premium.add(user)
     allow(WestanVipPainel::BadgeImage).to receive(:validate!).with("https://example.org/logo.png", kind: :logo).and_return("https://example.org/logo.png")
@@ -57,5 +70,17 @@ RSpec.describe WestanVipPainel::PainelController do
     premium.add(user)
     patch "/westan/vip-painel/admin/catalog.json", params: { themes: [] }
     expect(response.status).to eq(403)
+  end
+
+  it "accepts a background-only badge and clears an old logo" do
+    premium.add(user)
+    user.custom_fields["westan_vip_custom_logo_url"] = "https://example.org/old.png"
+    user.save_custom_fields
+    expect(WestanVipPainel::BadgeImage).not_to receive(:validate!).with(anything, kind: :logo)
+    allow(WestanVipPainel::BadgeImage).to receive(:validate!).with("https://example.org/bg.png", kind: :background).and_return("https://example.org/bg.png")
+    patch "/westan/vip-painel.json", params: { theme_id: "custom", custom_logo_url: "", custom_background_url: "https://example.org/bg.png" }
+    expect(response.status).to eq(200)
+    expect(response.parsed_body["decoration"]["theme"]).to include("id" => "custom", "logoUrl" => "", "badgeBackgroundUrl" => "https://example.org/bg.png")
+    expect(user.reload.custom_fields["westan_vip_custom_logo_url"].to_s).to eq("")
   end
 end
