@@ -16,7 +16,23 @@ plugins:
     description: "JSON array of VIP themes. Admin controls badge text/images and colors here."
 
   westan_vip_painel_nickname_styles_json:
+    hidden: true
     default: '[{"id":"orchid","name":"Orchid","enabled":true,"from":"#EC4899","to":"#A855F7"},{"id":"sunset","name":"Sunset","enabled":true,"from":"#F97316","to":"#FDBA74"},{"id":"gold","name":"Gold","enabled":true,"from":"#D97706","to":"#FDE68A"},{"id":"fire","name":"Fire","enabled":true,"from":"#EA580C","to":"#FB923C"},{"id":"lime","name":"Lime","enabled":true,"from":"#84CC16","to":"#BEF264"},{"id":"violet","name":"Violet","enabled":true,"from":"#A855F7","to":"#D946EF"},{"id":"sky","name":"Sky","enabled":true,"from":"#60A5FA","to":"#38BDF8"},{"id":"purple","name":"Purple","enabled":true,"from":"#9333EA","to":"#D946EF"}]'
     type: textarea
     client: true
     description: "JSON array of nickname styles available in the VIP panel."
+
+  westan_vip_painel_premium_group:
+    default: "vip_elegivel"
+    type: group
+    description: "Grupo de assinantes Premium. Libera selo, badges próprios e título."
+
+  westan_vip_painel_color_field_id:
+    default: 6
+    min: 1
+    description: "ID do campo de cor usado anteriormente pelo vip-westan. Preserve o mesmo ID na migração."
+
+  westan_vip_painel_colors_json:
+    default: '[{"value":"lilás degrade","name":"Lilás degradê","from":"#A12FE2","to":"#DA8AFF"},{"value":"dourado","name":"Dourado","from":"#D97706","to":"#FDE68A"},{"value":"rosa","name":"Rosa","from":"#DB2777","to":"#F472B6"},{"value":"azul","name":"Azul","from":"#2563EB","to":"#38BDF8"},{"value":"verde","name":"Verde","from":"#15803D","to":"#4ADE80"},{"value":"laranja","name":"Laranja","from":"#EA580C","to":"#FDBA74"}]'
+    type: textarea
+    description: "Catálogo único de cores. value corresponde ao campo legado; from/to aceitam #RRGGBB."

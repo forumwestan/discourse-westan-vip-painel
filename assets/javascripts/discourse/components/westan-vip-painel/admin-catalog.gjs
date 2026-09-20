@@ -4,6 +4,7 @@ import { action } from "@ember/object";
 import { htmlSafe } from "@ember/template";
 import { on } from "@ember/modifier";
 import { ajax } from "discourse/lib/ajax";
+import { popupAjaxError } from "discourse/lib/ajax-error";
 import dIcon from "discourse/helpers/d-icon";
 
 const DEFAULT_THEME = {
@@ -40,7 +41,7 @@ function gradientStyle(from, to) {
 
 export default class WestanVipPainelAdminCatalog extends Component {
   @tracked themes = clone(this.args.model.themes);
-  @tracked nicknameStyles = clone(this.args.model.nickname_styles);
+  @tracked nicknameStyles = clone(this.args.model.colors).map(color => ({ ...color, id: color.value }));
   @tracked activeThemeIndex = 0;
   @tracked activeStyleIndex = 0;
   @tracked section = "themes";
@@ -77,7 +78,7 @@ export default class WestanVipPainelAdminCatalog extends Component {
   }
 
   get activeThemeTextStyle() {
-    return gradientStyle(this.activeTheme.nicknameFrom, this.activeTheme.nicknameTo);
+    return gradientStyle(this.activeTheme.borderFrom || "#9333EA", this.activeTheme.borderTo || "#EC4899");
   }
 
   get activeStyleTextStyle() {
@@ -161,25 +162,27 @@ export default class WestanVipPainelAdminCatalog extends Component {
   @action
   async save() {
     this.saving = true;
+    try {
     const response = await ajax("/westan/vip-painel/admin/catalog", {
       type: "PATCH",
       data: {
         themes: this.themes,
-        nickname_styles: this.nicknameStyles,
+        colors: this.nicknameStyles.map(style => ({ ...style, value: style.id })),
       },
     });
     this.themes = clone(response.themes);
-    this.nicknameStyles = clone(response.nickname_styles);
+    this.nicknameStyles = clone(response.colors).map(color => ({ ...color, id: color.value }));
     this.activeThemeIndex = Math.min(this.activeThemeIndex, Math.max(0, this.themes.length - 1));
     this.activeStyleIndex = Math.min(this.activeStyleIndex, Math.max(0, this.nicknameStyles.length - 1));
-    this.saving = false;
+    } catch (error) { popupAjaxError(error); }
+    finally { this.saving = false; }
   }
 
   <template>
     <main class="westan-vip-admin">
       <header class="westan-vip-admin__header">
         <div>
-          <h1>Westan VIP Painel</h1>
+          <h1>Ajustes do Premium</h1>
           <p>Edite temas, badges e estilos de nickname sem mexer em JSON.</p>
         </div>
         <div>
@@ -236,8 +239,6 @@ export default class WestanVipPainelAdminCatalog extends Component {
           </div>
 
           <div class="westan-vip-admin__colors">
-            <label>Nick início<input type="color" value={{this.activeTheme.nicknameFrom}} data-field="nicknameFrom" {{on "input" this.updateTheme}} /></label>
-            <label>Nick fim<input type="color" value={{this.activeTheme.nicknameTo}} data-field="nicknameTo" {{on "input" this.updateTheme}} /></label>
             <label>Borda início<input type="color" value={{this.activeTheme.borderFrom}} data-field="borderFrom" {{on "input" this.updateTheme}} /></label>
             <label>Borda fim<input type="color" value={{this.activeTheme.borderTo}} data-field="borderTo" {{on "input" this.updateTheme}} /></label>
             <label>Fundo início<input type="color" value={{this.activeTheme.surfaceFrom}} data-field="surfaceFrom" {{on "input" this.updateTheme}} /></label>
@@ -273,7 +274,7 @@ export default class WestanVipPainelAdminCatalog extends Component {
 
           <div class="westan-vip-admin__grid">
             <label>Nome do estilo<input value={{this.activeStyle.name}} data-field="name" {{on "input" this.updateStyle}} /></label>
-            <label>ID do estilo<input value={{this.activeStyle.id}} data-field="id" {{on "input" this.updateStyle}} /></label>
+            <label>Valor no campo de usuário<input value={{this.activeStyle.id}} data-field="id" {{on "input" this.updateStyle}} /><small>Use o mesmo texto das opções antigas para preservar a aparência dos membros.</small></label>
           </div>
 
           <div class="westan-vip-admin__colors westan-vip-admin__colors--short">

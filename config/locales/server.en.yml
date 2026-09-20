@@ -1,6 +1,9 @@
 en:
   site_settings:
-    westan_vip_painel_enabled: "Enable the Westan VIP panel."
-    westan_vip_painel_group: "Group allowed to use the VIP panel."
+    westan_vip_painel_enabled: "Ativar os Ajustes do Premium."
+    westan_vip_painel_group: "Grupo VIP com acesso à escolha da cor do nome."
+    westan_vip_painel_premium_group: "Grupo dos assinantes pagantes. Libera badges, selo e título personalizados."
+    westan_vip_painel_color_field_id: "ID do campo de cor anterior do vip-westan. Mantenha o mesmo ID ao migrar."
+    westan_vip_painel_colors_json: "Catálogo unificado de cores. value deve corresponder ao valor antigo do campo."
     westan_vip_painel_themes_json: "JSON catalog of VIP badge themes."
     westan_vip_painel_nickname_styles_json: "JSON catalog of VIP nickname styles."

@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 # name: discourse-westan-vip-painel
-# about: VIP preference panel for nickname colors, custom badges, and profile titles
+# about: Ajustes do Premium: cores, selo, títulos e badges personalizados
 # meta_topic_id: 0
-# version: 0.1.0
+# version: 0.2.0
 # authors: Westan
 # url: https://github.com/forumwestan/discourse-westan-vip-painel
 # required_version: 3.2.0
@@ -11,6 +11,7 @@
 enabled_site_setting :westan_vip_painel_enabled
 
 register_asset "stylesheets/westan-vip-painel/painel.scss"
+register_asset "stylesheets/westan-vip-painel/premium.scss"
 
 register_svg_icon "crown"
 register_svg_icon "bolt"
@@ -28,53 +29,37 @@ module ::WestanVipPainel
     nickname_color: "westan_vip_nickname_color",
     badge_enabled: "westan_vip_badge_enabled",
     custom_card_enabled: "westan_vip_custom_card_enabled",
+    verified_enabled: "westan_vip_verified_enabled",
+    custom_logo_url: "westan_vip_custom_logo_url",
+    custom_background_url: "westan_vip_custom_background_url",
     custom_title: "westan_vip_custom_title"
   }.freeze
 
   def self.vip_member?(user)
-    return false unless user
-
-    group_name = SiteSetting.westan_vip_painel_group.to_s.downcase
-    user.groups.any? { |group| group.name.to_s.downcase == group_name }
+    Preferences.can_use?(user)
   end
 
   def self.post_render_payload(user)
-    return unless vip_member?(user)
-
-    fields = CUSTOM_FIELDS
-    styles = JSON.parse(SiteSetting.westan_vip_painel_nickname_styles_json.to_s)
-    styles = [] unless styles.is_a?(Array)
-    styles = styles.select { |style| style["enabled"] != false }
-    selected_id = user.custom_fields[fields[:nickname_style_id]].presence
-    selected_style =
-      styles.find { |style| style["id"].to_s == selected_id.to_s } || styles.first
-
-    color = lambda do |value, fallback|
-      candidate = value.to_s.strip
-      candidate.match?(/\A#[0-9a-fA-F]{3,8}\z/) ? candidate : fallback
-    end
-
-    {
-      verified: true,
-      nickname_style:
-        selected_style && {
-          from: color.call(selected_style["from"], "#D97706"),
-          to: color.call(selected_style["to"], "#FDE68A")
-        },
-      custom_title: user.custom_fields[fields[:custom_title]].to_s
-    }
-  rescue JSON::ParserError
-    { verified: true, nickname_style: nil, custom_title: "" }
+    Preferences.payload(user)
   end
 end
 
 require_relative "lib/westan_vip_painel/engine"
+require_relative "lib/westan_vip_painel/preferences"
+require_relative "lib/westan_vip_painel/colors"
 
 after_initialize do
   require_relative "app/controllers/westan_vip_painel/painel_controller"
+  require_relative "lib/westan_vip_painel/badge_image"
 
   add_to_serializer(:post, :westan_vip_painel) do
     WestanVipPainel.post_render_payload(object.user)
+  end
+
+  add_to_serializer(:post, :user_vip_color) { WestanVipPainel::Colors.selected(object.user) }
+  %i[user user_card].each do |serializer|
+    add_to_serializer(serializer, :user_vip_color) { WestanVipPainel::Colors.selected(object) }
+    add_to_serializer(serializer, :westan_vip_painel) { WestanVipPainel::Preferences.payload(object) }
   end
 
   WestanVipPainel::Engine.routes.draw do
@@ -105,7 +90,9 @@ after_initialize do
   end
 
   add_to_serializer(:current_user, :westan_vip_painel_can_use) do
-    group_name = SiteSetting.westan_vip_painel_group.to_s.downcase
-    object.groups.any? { |group| group.name.to_s.downcase == group_name }
+    WestanVipPainel::Preferences.can_use?(object)
+  end
+  add_to_serializer(:current_user, :westan_vip_painel_premium) do
+    WestanVipPainel::Preferences.premium?(object)
   end
 end

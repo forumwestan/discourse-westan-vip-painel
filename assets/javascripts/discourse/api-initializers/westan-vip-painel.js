@@ -11,6 +11,7 @@ let inFlight = false;
 let lastFetchAt = 0;
 let backoffUntil = 0;
 let observer;
+let updateHandler;
 let verifiedBadgeSequence = 0;
 
 const SCAN_DEBOUNCE_MS = 450;
@@ -20,9 +21,17 @@ const MAX_BATCH_SIZE = 80;
 const VERIFIED_BADGE_SELECTOR = ".westan-vip-verified";
 
 function applyNicknameStyle(element, style) {
-  if (!element || !style) {
+  if (!element) {
     return;
   }
+  if (!style?.from || !style?.to) {
+    if (element.classList.contains("westan-vip-nickname")) {
+      element.classList.remove("westan-vip-nickname");
+      ["background-image", "background-size", "background-position", "-webkit-background-clip", "background-clip", "color"].forEach(property => element.style.removeProperty(property));
+    }
+    return;
+  }
+  element.classList.add("westan-vip-nickname");
 
   element.style.backgroundImage = `linear-gradient(120deg, ${style.from}, ${style.to}, ${style.from})`;
   element.style.backgroundSize = "240% 240%";
@@ -97,7 +106,7 @@ function verifiedBadgeHtml(key) {
   const sealPath =
     "M21.007 8.27C22.194 9.125 23 10.45 23 12s-.806 2.876-1.993 3.73c.24 1.442-.134 2.958-1.227 4.05c-1.095 1.095-2.61 1.459-4.046 1.225C14.883 22.196 13.546 23 12 23c-1.55 0-2.878-.807-3.731-1.996c-1.438.235-2.954-.128-4.05-1.224c-1.095-1.095-1.459-2.611-1.217-4.05C1.816 14.877 1 13.551 1 12s.816-2.878 2.002-3.73c-.242-1.439.122-2.955 1.218-4.05c1.093-1.094 2.61-1.467 4.057-1.227C9.125 1.804 10.453 1 12 1c1.545 0 2.88.803 3.732 1.993c1.442-.24 2.956.135 4.048 1.227s1.468 2.608 1.227 4.05m-4.426-.084a1 1 0 0 1 .233 1.395l-5 7a1 1 0 0 1-1.521.126l-3-3a1 1 0 0 1 1.414-1.414l2.165 2.165l4.314-6.04a1 1 0 0 1 1.395-.232";
 
-  return `<button type="button" class="westan-vip-verified" aria-label="Membro Verificado" aria-expanded="false" data-tooltip="Membro Verificado"><svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="${faceId}" x1="4" y1="3" x2="21" y2="22" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff1a0"></stop><stop offset=".28" stop-color="#f8d84d"></stop><stop offset=".62" stop-color="#edb80d"></stop><stop offset="1" stop-color="#cf8500"></stop></linearGradient><linearGradient id="${rimId}" x1="5" y1="4" x2="20" y2="21" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff8c9"></stop><stop offset=".42" stop-color="#f8d956"></stop><stop offset="1" stop-color="#ad6500"></stop></linearGradient></defs><path class="westan-vip-verified__depth" transform="translate(0 .75)" fill-rule="evenodd" d="${sealPath}" clip-rule="evenodd"></path><path class="westan-vip-verified__seal" fill="url(#${faceId})" fill-rule="evenodd" d="${sealPath}" clip-rule="evenodd"></path><path class="westan-vip-verified__rim" fill="none" stroke="url(#${rimId})" fill-rule="evenodd" d="${sealPath}" clip-rule="evenodd"></path><path class="westan-vip-verified__check-shadow" transform="translate(.55 .7)" d="m7.8 13 3 3 5.5-7.7"></path><path class="westan-vip-verified__check" d="m7.8 13 3 3 5.5-7.7"></path></svg></button>`;
+  return `<button type="button" class="westan-vip-verified" aria-label="Membro Premium Verificado" aria-expanded="false" data-tooltip="Membro Premium Verificado"><svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="${faceId}" x1="4" y1="3" x2="21" y2="22" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff1a0"></stop><stop offset=".28" stop-color="#f8d84d"></stop><stop offset=".62" stop-color="#edb80d"></stop><stop offset="1" stop-color="#cf8500"></stop></linearGradient><linearGradient id="${rimId}" x1="5" y1="4" x2="20" y2="21" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff8c9"></stop><stop offset=".42" stop-color="#f8d956"></stop><stop offset="1" stop-color="#ad6500"></stop></linearGradient></defs><path class="westan-vip-verified__depth" transform="translate(0 .75)" fill-rule="evenodd" d="${sealPath}" clip-rule="evenodd"></path><path class="westan-vip-verified__seal" fill="url(#${faceId})" fill-rule="evenodd" d="${sealPath}" clip-rule="evenodd"></path><path class="westan-vip-verified__rim" fill="none" stroke="url(#${rimId})" fill-rule="evenodd" d="${sealPath}" clip-rule="evenodd"></path><path class="westan-vip-verified__check-shadow" transform="translate(.55 .7)" d="m7.8 13 3 3 5.5-7.7"></path><path class="westan-vip-verified__check" d="m7.8 13 3 3 5.5-7.7"></path></svg></button>`;
 }
 
 function activateVerifiedBadge(badge) {
@@ -106,34 +115,82 @@ function activateVerifiedBadge(badge) {
   }
 
   badge.dataset.tooltipReady = "true";
-  badge.dataset.tooltip = "Membro Verificado";
-  badge.setAttribute("aria-label", "Membro Verificado");
+  badge.dataset.tooltip = "Membro Premium Verificado";
+  badge.setAttribute("aria-label", "Membro Premium Verificado");
   badge.setAttribute("aria-expanded", "false");
   if (badge.tagName !== "BUTTON") {
     badge.setAttribute("role", "button");
     badge.setAttribute("tabindex", "0");
   }
 
+  function closeTooltip() {
+    document.querySelector(".westan-premium-tooltip")?.remove();
+    badge.setAttribute("aria-expanded", "false");
+    badge.removeAttribute("aria-describedby");
+    badge.dataset.tooltipPinned = "false";
+  }
+  function showTooltip() {
+    document.querySelector(".westan-premium-tooltip")?.remove();
+    const tooltip = document.createElement("div");
+    tooltip.className = "westan-premium-tooltip";
+    tooltip.id = "westan-premium-tooltip";
+    tooltip.setAttribute("role", "tooltip");
+    tooltip.textContent = "Membro Premium Verificado";
+    document.body.appendChild(tooltip);
+    const rect = badge.getBoundingClientRect();
+    tooltip.style.left = `${Math.max(12, Math.min(window.innerWidth - tooltip.offsetWidth - 12, rect.left + rect.width / 2 - tooltip.offsetWidth / 2))}px`;
+    tooltip.style.top = `${Math.max(8, rect.top - tooltip.offsetHeight - 8)}px`;
+    badge.setAttribute("aria-expanded", "true");
+    badge.setAttribute("aria-describedby", tooltip.id);
+  }
   badge.addEventListener("click", (event) => {
     event.preventDefault();
     event.stopPropagation();
 
-    const willOpen = !badge.classList.contains("is-tooltip-visible");
-    document
-      .querySelectorAll(`${VERIFIED_BADGE_SELECTOR}.is-tooltip-visible`)
-      .forEach((item) => {
-        item.classList.remove("is-tooltip-visible");
-        item.setAttribute("aria-expanded", "false");
-      });
-
-    badge.classList.toggle("is-tooltip-visible", willOpen);
-    badge.setAttribute("aria-expanded", String(willOpen));
+    if (badge.dataset.tooltipPinned === "true") { closeTooltip(); } else { showTooltip(); badge.dataset.tooltipPinned = "true"; }
   });
 
-  badge.addEventListener("blur", () => {
-    badge.classList.remove("is-tooltip-visible");
-    badge.setAttribute("aria-expanded", "false");
-  });
+  badge.addEventListener("blur", closeTooltip);
+  badge.addEventListener("mouseenter", showTooltip);
+  badge.addEventListener("mouseleave", () => { if (badge.dataset.tooltipPinned !== "true") { closeTooltip(); } });
+  badge.addEventListener("keydown", event => { if (event.key === "Escape") { closeTooltip(); } });
+}
+
+function syncVerified(name, container, data) {
+  if (!name || !container) { return; }
+  const badges = [...container.querySelectorAll(VERIFIED_BADGE_SELECTOR)];
+  let badge = badges.shift();
+  badges.forEach(item => item.remove());
+  if (!data.verified) {
+    if (badge?.getAttribute("aria-expanded") === "true") { document.querySelector(".westan-premium-tooltip")?.remove(); }
+    badge?.remove(); container.classList.remove("westan-vip-verified-name"); return;
+  }
+  container.classList.add("westan-vip-verified-name");
+  if (!badge) {
+    name.insertAdjacentHTML("afterend", verifiedBadgeHtml(data.username || data.id));
+    badge = name.nextElementSibling;
+  } else if (name.nextElementSibling !== badge) { name.after(badge); }
+  activateVerifiedBadge(badge);
+}
+
+function syncExtras(scope, data) {
+  let title = scope.querySelector(".westan-vip-user-title");
+  if (!data.custom_title) { title?.remove(); scope.classList.remove("westan-vip-names"); }
+  else {
+    scope.classList.add("westan-vip-names");
+    if (!title) { title = document.createElement("div"); title.className = "westan-vip-user-title"; scope.appendChild(title); }
+    if (title.textContent !== data.custom_title) { title.textContent = data.custom_title; }
+  }
+}
+
+function syncTheme(scope, target, data) {
+  const existing = scope.querySelector(".westan-vip-post-badge");
+  const fingerprint = JSON.stringify(data.theme);
+  if (!data.badge_enabled || !data.theme) { existing?.remove(); return; }
+  if (!target || existing?.dataset.themeFingerprint === fingerprint) { return; }
+  existing?.remove();
+  target.insertAdjacentHTML("beforeend", badgeHtml(data.theme));
+  target.querySelector(".westan-vip-post-badge").dataset.themeFingerprint = fingerprint;
 }
 
 function findPostUserId(post) {
@@ -156,48 +213,15 @@ function decoratePost(post, data) {
     post.querySelector(".names a");
 
   const nameContainer = nameLink?.closest(".username") || nameLink?.parentElement;
-  nameContainer?.classList.add("westan-vip-verified-name");
-
-  if (
-    data.verified &&
-    nameLink &&
-    !nameContainer?.querySelector(VERIFIED_BADGE_SELECTOR)
-  ) {
-    nameLink.insertAdjacentHTML(
-      "afterend",
-      verifiedBadgeHtml(data.username || data.id)
-    );
-    activateVerifiedBadge(nameLink.nextElementSibling);
-  }
-
-  if (nameLink && data.nickname_style) {
-    nameLink.classList.add("westan-vip-nickname");
-    applyNicknameStyle(nameLink, data.nickname_style);
-  }
+  syncVerified(nameLink, nameContainer, data);
+  applyNicknameStyle(nameLink, data.nickname_style);
 
   const names =
     post.querySelector(".topic-meta-data .names") ||
     post.querySelector(".topic-meta-data");
-  if (data.verified) {
-    names?.classList.add("westan-vip-has-verified");
-  }
-  if (names && data.custom_title) {
-    names.classList.add("westan-vip-names");
-    let title = names.querySelector(".westan-vip-user-title");
-    if (!title) {
-      title = document.createElement("div");
-      title.className = "westan-vip-user-title";
-      names.appendChild(title);
-    }
-    title.textContent = data.custom_title;
-  }
-
-  if (data.badge_enabled && data.theme) {
-    const postInfos = post.querySelector(".post-infos") || post.querySelector(".post-info");
-    if (postInfos && !postInfos.querySelector(".westan-vip-post-badge")) {
-      postInfos.insertAdjacentHTML("beforeend", badgeHtml(data.theme));
-    }
-  }
+  names?.classList.toggle("westan-vip-has-verified", !!data.verified);
+  if (names) { syncExtras(names, data); }
+  syncTheme(post, post.querySelector(".post-infos") || post.querySelector(".post-info"), data);
 }
 
 function profileUsername() {
@@ -257,16 +281,20 @@ function findProfileNameElement(data) {
 
 function decorateProfile(data) {
   const nameElement = findProfileNameElement(data);
-  if (!nameElement || nameElement.querySelector(".westan-vip-verified")) {
-    return;
-  }
-
+  if (!nameElement) { return; }
   nameElement.classList.add("westan-vip-profile-name");
-  nameElement.insertAdjacentHTML(
-    "beforeend",
-    verifiedBadgeHtml(`profile-${data.username || data.id}`)
-  );
-  activateVerifiedBadge(nameElement.querySelector(".westan-vip-verified"));
+  // Keep the seal outside the gradient text, and inside the heading's line.
+  let label = nameElement.querySelector(".westan-premium-name-label");
+  if (!label) {
+    label = document.createElement("span");
+    label.className = "westan-premium-name-label";
+    [...nameElement.childNodes].filter(node => !node.matches?.(VERIFIED_BADGE_SELECTOR)).forEach(node => label.appendChild(node));
+    nameElement.prepend(label);
+  }
+  syncVerified(label, nameElement, data);
+  applyNicknameStyle(label, data.nickname_style);
+  const names = nameElement.closest(".user-profile-names, .primary") || nameElement.parentElement;
+  if (names) { syncExtras(names, data); }
 }
 
 function findUserCardUsername(card) {
@@ -303,19 +331,13 @@ function decorateUserCard(card, data) {
     links[0];
   const nameContainer = nameLink?.parentElement;
 
-  if (!nameLink || nameContainer?.querySelector(".westan-vip-verified")) {
-    return;
-  }
-
-  nameLink.insertAdjacentHTML(
-    "afterend",
-    verifiedBadgeHtml(`card-${data.username || data.id}`)
-  );
+  if (!nameLink) { return; }
+  syncVerified(nameLink, nameContainer, data);
+  applyNicknameStyle(nameLink, data.nickname_style);
   nameContainer.classList.add("westan-vip-verified-card-name");
-  const verifiedBadge = nameLink.nextElementSibling;
-  verifiedBadge?.classList.add("westan-vip-verified--user-card");
-
-  activateVerifiedBadge(verifiedBadge);
+  nameContainer.querySelector(VERIFIED_BADGE_SELECTOR)?.classList.add("westan-vip-verified--user-card");
+  const names = nameLink.closest(".names") || nameContainer;
+  syncExtras(names, data);
 }
 
 async function fetchUsers(ids, usernames) {
@@ -509,6 +531,8 @@ export default apiInitializer("1.8.0", (api) => {
         ".topic-post, article[data-post-id], article[data-user-id]"
       );
       if (data && post) {
+        cache.set(String(data.id), data);
+        usernameCache.set(usernameKey(data.username), data);
         decoratePost(post, data);
       }
     },
@@ -521,8 +545,8 @@ export default apiInitializer("1.8.0", (api) => {
       name: "westan-vip-painel",
       route: "westan-vip-painel-admin",
       label: "westan_vip_painel.admin_title",
-      title: "Westan VIP Painel",
-      text: "Westan VIP Painel",
+      title: "Ajustes do Premium",
+      text: "Ajustes do Premium",
       icon: "crown",
     });
   }
@@ -531,8 +555,8 @@ export default apiInitializer("1.8.0", (api) => {
     api.addCommunitySectionLink?.({
       name: "westan-vip-painel",
       route: "westan-vip-painel",
-      title: "Painel VIP",
-      text: "Painel VIP",
+      title: currentUser.westan_vip_painel_premium ? "Ajustes do Premium" : "Ajustes da cor",
+      text: currentUser.westan_vip_painel_premium ? "Ajustes do Premium" : "Ajustes da cor",
       icon: "crown",
     });
   }
@@ -544,12 +568,27 @@ export default apiInitializer("1.8.0", (api) => {
   }
 
   observer?.disconnect();
-  observer = new MutationObserver(scheduleScan);
+  observer = new MutationObserver(() => scheduleScan());
   observer.observe(document.documentElement, {
     childList: true,
     subtree: true,
   });
 
-  api.onPageChange?.(() => scheduleScan());
+  if (updateHandler) { window.removeEventListener("westan-premium-updated", updateHandler); }
+  updateHandler = event => {
+    const data = event.detail;
+    if (data?.id) {
+      cache.set(String(data.id), data);
+      usernameCache.set(usernameKey(data.username), data);
+      scheduleScan();
+    }
+  };
+  window.addEventListener("westan-premium-updated", updateHandler);
+  api.onPageChange?.(() => {
+    document.querySelector(".westan-premium-tooltip")?.remove();
+    cache.clear();
+    usernameCache.clear();
+    scheduleScan();
+  });
   scheduleScan();
 });

@@ -1,9 +1,9 @@
 en:
   js:
     westan_vip_painel:
-      title: "Painel VIP"
-      admin_title: "Westan VIP Painel"
+      title: "Ajustes do Premium"
+      admin_title: "Ajustes do Premium"
   admin_js:
     site_settings:
       categories:
-        discourse_westan_vip_painel: "Westan VIP Painel"
+        discourse_westan_vip_painel: "Ajustes do Premium"
